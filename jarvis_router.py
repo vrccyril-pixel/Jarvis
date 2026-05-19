@@ -38,6 +38,8 @@ INTERDICTIONS : Inventer des résultats. Générer du code. Modifier des fichier
 ━━━━ RÉSULTAT DU DERNIER AGENT ━━━━
 {last_output}
 
+IMPORTANT : Même pour une salutation, une réponse simple ou une phrase de mémoire, tu dois retourner un JSON valide. Ne réponds jamais en texte naturel hors JSON.
+
 ━━━━ FORMAT DE RÉPONSE OBLIGATOIRE ━━━━
 Tu dois répondre UNIQUEMENT avec un objet JSON valide.
 Aucun texte avant ou après. Aucun bloc ```json```.
@@ -178,12 +180,13 @@ def build_intent(
     )
 
     response = ollama.chat(
-        model=ORCHESTRATOR_MODEL,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user",   "content": user_query},
-        ],
-        options={"temperature": 0.05},  # Maximum déterministe pour le routage
+    model=ORCHESTRATOR_MODEL,
+    messages=[
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_query},
+    ],
+    format="json",
+    options={"temperature": 0.0},
     )
 
     raw     = response["message"]["content"].strip()
