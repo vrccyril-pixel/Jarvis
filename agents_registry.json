@@ -1,0 +1,45 @@
+{
+  "_commentaire": "Registre des agents Jarvis. Ajoutez une entrée ici pour chaque nouveau agent.",
+  "_format": {
+    "category/agent.py": {
+      "description": "Ce que fait l'agent en une phrase",
+      "args": ["arg1_optionnel", "arg2_optionnel"],
+      "examples": ["exemple de requête utilisateur qui doit déclencher cet agent"]
+    }
+  },
+
+  "tools/pdf_reader.py": {
+    "description": "Lit un fichier PDF local et retourne son contenu textuel",
+    "args": ["chemin_du_fichier_pdf"],
+    "examples": [
+      "Lis le fichier data/test.pdf",
+      "Analyse ce PDF",
+      "Que contient le document PDF ?"
+    ]
+  },
+
+  "system/ram_usage.py": {
+    "description": "Affiche l'utilisation actuelle de la RAM du système",
+    "args": [],
+    "examples": [
+      "Montre-moi l'utilisation de la RAM",
+      "Quelle est la mémoire disponible ?",
+      "Status du système"
+    ]
+  },
+
+  "web/web_search.py": {
+    "description": "Fait une recherche sur internet (DuckDuckGo) et renvoie les résultats.",
+    "args": ["query"]
+  },
+
+  "office/outlook_agenda.py": {
+    "description": "Consulte l'agenda Outlook et retourne les rendez-vous du jour",
+    "args": [],
+    "examples": [
+      "Quels sont mes rendez-vous aujourd'hui ?",
+      "Montre mon agenda",
+      "Qu'est-ce que j'ai prévu ?"
+    ]
+  }
+}
