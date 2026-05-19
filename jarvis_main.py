@@ -38,58 +38,58 @@ def main():
 
     print("🤖 Jarvis V3 prêt.")
 
-    last_output=""
+    last_output = ""
 
     while True:
 
-        query=input("\n> ").strip()
+        query = input("\n> ").strip()
 
-        if query.lower() in ["quit","exit"]:
+        if query.lower() in ["quit", "exit"]:
             break
 
         try:
 
-            memory_context=recall_memory(query)
+            memory_context = recall_memory(query)
 
-            intent=build_intent(
+            intent = build_intent(
                 user_query=query,
                 last_output=last_output,
                 memory_context=memory_context,
                 registry=load_registry()
             )
 
-            action=intent["action"]
+            action = intent["action"]
 
-            if action=="run_agent":
+            if action == "run_agent":
 
-                success,output=run_agent(
+                success, output = run_agent(
                     intent["category"],
                     intent["agent"],
-                    intent.get("args",[])
+                    intent.get("args", [])
                 )
 
-                last_output=output
+                last_output = output
 
                 print("\n📋")
                 print(output)
 
-            elif action=="answer":
+            elif action == "answer":
 
                 print("\n💬")
                 print(intent["text"])
 
-                last_output=intent["text"]
+                last_output = intent["text"]
 
-            elif action=="save_memory":
+            elif action == "save_memory":
 
                 save_memory(
                     intent["fact"],
-                    intent.get("id","memo")
+                    intent.get("id", "memo")
                 )
 
                 print("\n🧠 Mémoire enregistrée.")
 
-            elif action=="agent_missing":
+            elif action == "agent_missing":
 
                 print("\n⚠ Agent manquant :")
                 print(intent["suggestion"])
@@ -99,5 +99,6 @@ def main():
             print("\n⚠ Erreur :")
             print(e)
 
-        if __name__=="__main__":
-            main()
+
+if __name__ == "__main__":
+    main()
