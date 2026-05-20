@@ -50,20 +50,6 @@ def _detect_missing_module(stderr_text: str) -> str | None:
     return _PIP_ALIASES.get(module.lower(), module)
 
 
-def _install_module(pip_package: str) -> bool:
-    """Tente d'installer un paquet pip. Retourne True si succès."""
-    print(f"  📦 Installation de '{pip_package}'...")
-    result = subprocess.run(
-        [sys.executable, "-m", "pip", "install", pip_package, "--quiet"],
-        capture_output=True, text=True,
-    )
-    if result.returncode == 0:
-        print(f"  ✅ '{pip_package}' installé avec succès.")
-        return True
-    print(f"  ❌ Échec d'installation de '{pip_package}' :\n{result.stderr.strip()}")
-    return False
-
-
 def run_agent(
     category: str,
     filename: str,
@@ -80,7 +66,7 @@ def run_agent(
     Garanties :
       • Le chemin est construit de façon déterministe (pas d'injection)
       • Le répertoire de travail est toujours BASE_DIR
-      • Une seule tentative d'auto-installation de dépendance (_retry)
+      • Aucune installation automatique de dépendance pendant l'exécution
       • Timeout configurable
     """
     # ── Validation de la catégorie ────────────────────────────────
@@ -117,12 +103,16 @@ def run_agent(
     except Exception as e:
         return False, f"Impossible de lancer l'agent : {e}"
 
-    # ── Auto-installation (une seule tentative) ───────────────────
-    if result.returncode != 0 and "ModuleNotFoundError" in result.stderr and _retry:
+    # ── Dépendance manquante : erreur claire, sans installation automatique ──
+    if result.returncode != 0 and "ModuleNotFoundError" in result.stderr:
         pip_pkg = _detect_missing_module(result.stderr)
-        if pip_pkg and _install_module(pip_pkg):
-            # Deuxième tentative sans possibilité de re-retry
-            return run_agent(category, filename, args, _retry=False)
+        package_hint = f" Paquet probable : {pip_pkg}." if pip_pkg else ""
+        return False, (
+            f"Code retour {result.returncode}\n"
+            f"Dépendance Python manquante.{package_hint}\n"
+            "Installation automatique désactivée : installez la dépendance manuellement.\n"
+            f"{result.stderr.strip()}"
+        )
 
     # ── Résultat final ─────────────────────────────────────────────
     if result.returncode != 0:

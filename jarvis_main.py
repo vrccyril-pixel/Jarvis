@@ -14,6 +14,11 @@ from jarvis_router import build_intent
 from jarvis_memory import recall_memory, save_memory
 from jarvis_runner import run_agent
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 # --- CONFIGURATION ---
 ORCHESTRATOR_MODEL = "llama3"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
