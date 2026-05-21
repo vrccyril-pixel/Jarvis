@@ -1,7 +1,9 @@
-import win32com.client
 import datetime
+import sys
 
 def get_outlook_events():
+    import win32com.client
+
     # Initialisation du client Outlook
     outlook = win32com.client.Dispatch('Outlook.Application').GetNamespace('MAPI')
 
@@ -30,5 +32,22 @@ def print_events(events):
         print(f"Duration: {event['duration']} minutes")
         print()
 
-events = get_outlook_events()
-print_events(events)
+def main() -> int:
+    try:
+        events = get_outlook_events()
+    except ImportError as exc:
+        print(
+            f"Error: pywin32/win32com is required to read Outlook agenda: {exc}",
+            file=sys.stderr,
+        )
+        return 1
+    except Exception as exc:
+        print(f"Error: unable to read Outlook agenda: {exc}", file=sys.stderr)
+        return 1
+
+    print_events(events)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
