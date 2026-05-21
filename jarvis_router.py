@@ -47,6 +47,9 @@ Choisis UNE des quatre actions :
 
 Action 1 – Lancer un agent existant de la liste ci-dessus :
 {{"action": "run_agent", "category": "<categorie>", "agent": "<fichier.py>", "args": ["<arg1>", "..."]}}
+RÈGLE STRICTE : pour run_agent, la paire "category/agent" doit correspondre
+exactement à une clé listée dans AGENTS DISPONIBLES. Si aucun agent listé ne
+convient exactement, utilise agent_missing.
 
 Action 2 – Répondre directement (question simple, info en mémoire, calcul) :
 {{"action": "answer", "text": "<ta réponse>"}}
@@ -192,4 +195,17 @@ def build_intent(
     raw     = response["message"]["content"].strip()
     intent  = _extract_json(raw)
     intent  = _validate_intent(intent)
+
+    if intent.get("action") == "run_agent":
+        agent_key = f"{intent['category']}/{intent['agent']}"
+        allowed = {
+            key for key, value in registry.items()
+            if not key.startswith("_") and isinstance(value, dict)
+        }
+        if agent_key not in allowed:
+            return {
+                "action": "agent_missing",
+                "suggestion": f"Agent non déclaré dans le registre : {agent_key}",
+            }
+
     return intent
