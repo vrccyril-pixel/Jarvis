@@ -42,6 +42,13 @@ class JarvisSmokeTests(unittest.TestCase):
         self.assertTrue(success, output)
         self.assertIn("Agent web_search non implémenté", output)
 
+    def test_unregistered_coder_agent_is_blocked(self):
+        with redirect_stdout(StringIO()):
+            success, output = run_agent("system", "coder_agent.py")
+
+        self.assertFalse(success, output)
+        self.assertIn("non déclaré dans agents_registry.json", output)
+
     def test_jarvis_starts_and_quits(self):
         result = subprocess.run(
             [sys.executable, str(ROOT / "jarvis_main.py")],
