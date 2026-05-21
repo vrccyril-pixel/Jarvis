@@ -73,10 +73,14 @@ def main():
                     intent.get("args", [])
                 )
 
-                last_output = output
+                if success:
+                    last_output = output
 
-                print("\n📋")
-                print(output)
+                    print("\n[RESULT]")
+                    print(output)
+                else:
+                    print("\n[AGENT ERROR]")
+                    print(output)
 
             elif action == "answer":
 
