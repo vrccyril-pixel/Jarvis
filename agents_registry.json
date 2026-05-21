@@ -29,7 +29,7 @@
   },
 
   "web/web_search.py": {
-    "description": "Fait une recherche sur internet (DuckDuckGo) et renvoie les résultats.",
+    "description": "Placeholder de recherche web : accepte une requête mais n'effectue pas encore de recherche réelle.",
     "args": ["query"]
   },
 
