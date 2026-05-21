@@ -15,6 +15,7 @@ CONTRAT AGENT (à respecter par tous les scripts dans agents/) :
   ❌ Ne PAS appeler le LLM (sauf agents spécialisés Phase C)
 """
 
+import json
 import os
 import re
 import subprocess
@@ -23,6 +24,7 @@ import sys
 # ─────────────────────────────────────────────────────────────────
 BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
 AGENTS_DIR    = os.path.join(BASE_DIR, "agents")
+REGISTRY_FILE = os.path.join(BASE_DIR, "agents_registry.json")
 AGENT_TIMEOUT = 60  # secondes
 
 VALID_CATEGORIES = {"system", "office", "web", "tools"}
@@ -39,6 +41,16 @@ _PIP_ALIASES = {
     "pptx":     "python-pptx",
 }
 # ─────────────────────────────────────────────────────────────────
+
+
+def _load_allowed_agents() -> set[str]:
+    """Retourne les clés d'agents déclarées dans agents_registry.json."""
+    with open(REGISTRY_FILE, "r", encoding="utf-8") as handle:
+        registry = json.load(handle)
+    return {
+        key for key, value in registry.items()
+        if not key.startswith("_") and isinstance(value, dict)
+    }
 
 
 def _detect_missing_module(stderr_text: str) -> str | None:
@@ -73,6 +85,19 @@ def run_agent(
     if category not in VALID_CATEGORIES:
         return False, f"Catégorie '{category}' invalide. Valeurs : {sorted(VALID_CATEGORIES)}"
 
+    # ── Validation allowlist via registre ───────────────────────────
+    agent_key = f"{category}/{filename}"
+    try:
+        allowed_agents = _load_allowed_agents()
+    except Exception as e:
+        return False, f"Impossible de charger agents_registry.json : {e}"
+
+    if agent_key not in allowed_agents:
+        return False, (
+            f"Agent non autorisé ou non déclaré dans agents_registry.json : {agent_key}\n"
+            "Ajoutez-le explicitement au registre avant de l'exécuter."
+        )
+
     # ── Construction du chemin (sécurisé, pas de path traversal) ─
     agent_path = os.path.normpath(os.path.join(AGENTS_DIR, category, filename))
 
@@ -87,7 +112,7 @@ def run_agent(
         )
 
     cmd = [sys.executable, agent_path] + (args or [])
-    print(f"  ⚙️  {category}/{filename}  {args or ''}")
+    print(f"[RUN] {category}/{filename} {args or ''}")
 
     # ── Exécution ──────────────────────────────────────────────────
     try:
